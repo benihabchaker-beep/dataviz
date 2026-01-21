@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tranco Rank Comparer</title>
+    <meta name="description" content="Compare historical popularity rankings of websites using Tranco List data.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Tranco Rank Comparer</h1>
+            <p>Visualize and compare the historical popularity of websites.</p>
+        </header>
+
+        <main>
+            <section class="controls">
+                <div class="input-group">
+                    <label for="domain1">Domain 1</label>
+                    <input type="text" id="domain1" placeholder="e.g., google.com" value="google.com">
+                </div>
+                
+                <div class="input-group">
+                    <label for="domain2">Domain 2</label>
+                    <input type="text" id="domain2" placeholder="e.g., bing.com" value="bing.com">
+                </div>
+
+                <div class="date-group">
+                    <div class="input-group">
+                        <label for="startDate">Start Date</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div class="input-group">
+                        <label for="endDate">End Date</label>
+                        <input type="date" id="endDate">
+                    </div>
+                </div>
+
+                <button id="compareBtn">Compare Ranks</button>
+            </section>
+
+            <section class="chart-container">
+                <canvas id="rankChart"></canvas>
+                <div id="loading" class="hidden">Loading data...</div>
+                <div id="error" class="hidden"></div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>Data provided by <a href="https://tranco-list.eu" target="_blank">Tranco List</a></p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
