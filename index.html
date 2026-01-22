@@ -1,60 +1,155 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tranco Rank Comparer</title>
-    <meta name="description" content="Compare historical popularity rankings of websites using Tranco List data.">
+    <title>Comparateur de Classement Tranco</title>
+    <meta name="description"
+        content="Comparez l'évolution historique de la popularité des sites web avec les données Tranco.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js"></script>
 </head>
+
 <body>
     <div class="app-container">
         <header>
-            <h1>Tranco Rank Comparer</h1>
-            <p>Visualize and compare the historical popularity of websites.</p>
+            <h1>Comparateur de Classement Tranco</h1>
+            <p>Visualisez et comparez l'évolution historique de la popularité des sites web.</p>
+            <p style="margin-top: 0.5rem;"><a href="/upload.html"
+                    style="color: var(--accent-color); text-decoration: none; font-size: 0.9rem;">📤 Importer des
+                    données</a></p>
         </header>
 
-        <main>
-            <section class="controls">
-                <div class="input-group">
-                    <label for="domain1">Domain 1</label>
-                    <input type="text" id="domain1" placeholder="e.g., google.com" value="google.com">
-                </div>
-                
-                <div class="input-group">
-                    <label for="domain2">Domain 2</label>
-                    <input type="text" id="domain2" placeholder="e.g., bing.com" value="bing.com">
+        <div class="content-wrapper">
+            <aside class="info-sidebar">
+                <h3>À propos</h3>
+                <p>Cet outil permet de visualiser et comparer l'évolution du classement de popularité de sites web dans
+                    le temps, basé sur les données <strong>Tranco</strong>.</p>
+
+                <p style="font-size: 0.9rem; opacity: 0.9; margin-top: 1rem;">Tranco est une liste de classement de
+                    sites web mise à jour quotidiennement, combinant plusieurs sources de données pour fournir un
+                    classement fiable et résistant à la manipulation.</p>
+
+                <div
+                    style="background: rgba(56, 189, 248, 0.1); border: 1px solid var(--accent-color); border-radius: 0.5rem; padding: 1rem; margin: 1rem 0;">
+                    <p style="margin: 0; font-weight: 600; color: var(--accent-color);">📤 Importez vos données</p>
+                    <p style="margin: 0.5rem 0 0.75rem 0; font-size: 0.85rem;">Téléchargez des fichiers CSV pour
+                        visualiser vos domaines.</p>
+                    <a href="/upload.html"
+                        style="display: inline-block; background: var(--accent-color); color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; text-decoration: none; font-weight: 500; font-size: 0.9rem;">Accéder
+                        à l'import</a>
                 </div>
 
-                <div class="date-group">
-                    <div class="input-group">
-                        <label for="startDate">Start Date</label>
-                        <input type="date" id="startDate">
+                <div
+                    style="background: rgba(168, 139, 250, 0.1); border: 1px solid #a78bfa; border-radius: 0.5rem; padding: 1rem; margin: 1rem 0;">
+                    <p style="margin: 0; font-weight: 600; color: #a78bfa;">📊 Données d'exemple</p>
+                    <p style="margin: 0.5rem 0 0.75rem 0; font-size: 0.85rem;">Téléchargez des fichiers CSV d'exemple
+                        pour tester l'application.</p>
+                    <a href="https://drive.google.com/drive/folders/1Inu2xmzTZWQYaqHuVvkC3r_nCpt5loPG?usp=sharing"
+                        target="_blank"
+                        style="display: inline-block; background: #a78bfa; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; text-decoration: none; font-weight: 500; font-size: 0.9rem;">📁
+                        Google Drive</a>
+                </div>
+
+                <p><strong>Fonctionnalités :</strong></p>
+                <ul>
+                    <li>Analyser les tendances de trafic</li>
+                    <li>Comparer plusieurs domaines</li>
+                    <li>Évaluer la stabilité du classement</li>
+                    <li>Zoomer et naviguer dans les graphiques</li>
+                </ul>
+                <p class="tip">💡 <strong>Astuce :</strong> Utilisez la molette pour zoomer et Shift + glisser pour
+                    naviguer dans le graphique.</p>
+            </aside>
+
+            <main>
+                <section class="controls">
+                    <div class="input-group domain-input-group">
+                        <label>Comparer des domaines</label>
+                        <div class="domain-manager">
+                            <div class="input-row">
+                                <input type="text" id="domainInput" placeholder="Ajouter un domaine (ex: google.com)"
+                                    list="suggestions">
+                                <button id="addDomainBtn" class="icon-btn" title="Ajouter un domaine">
+                                    <span style="font-size: 1.2rem; line-height: 1;">+</span>
+                                </button>
+                            </div>
+                            <div id="domainList" class="domain-list">
+                                <!-- Tags injected via JS -->
+                            </div>
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label for="endDate">End Date</label>
-                        <input type="date" id="endDate">
+                    <datalist id="suggestions"></datalist>
+
+                    <div class="date-group">
+                        <div class="input-group">
+                            <label for="startDate">Date de début</label>
+                            <input type="date" id="startDate">
+                        </div>
+                        <div class="input-group">
+                            <label for="endDate">Date de fin</label>
+                            <input type="date" id="endDate">
+                        </div>
                     </div>
+                </section>
+
+                <div class="action-group">
+                    <button id="resetZoom" class="action-btn">
+                        <span>🔄</span> Réinitialiser le zoom
+                    </button>
+                    <button id="exportPng" class="action-btn">
+                        <span>💾</span> PNG
+                    </button>
+                    <button id="exportHtml" class="action-btn">
+                        <span>📄</span> HTML
+                    </button>
                 </div>
 
-                <button id="compareBtn">Compare Ranks</button>
-            </section>
+                <!-- View Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-view="timeline">
+                        <span class="icon">📈</span> Chronologie des rangs
+                    </button>
+                    <button class="tab-btn" data-view="matrix">
+                        <span class="icon">🧩</span> Matrice de stabilité
+                    </button>
+                </div>
 
-            <section class="chart-container">
-                <canvas id="rankChart"></canvas>
-                <div id="loading" class="hidden">Loading data...</div>
-                <div id="error" class="hidden"></div>
-            </section>
-        </main>
-        
+                <section class="chart-container">
+                    <!-- Timeline View -->
+                    <div id="timeline-view" class="view-panel active">
+                        <canvas id="rankChart"></canvas>
+                    </div>
+
+                    <!-- Matrix View -->
+                    <div id="matrix-view" class="view-panel hidden">
+                        <canvas id="matrixChart"></canvas>
+                        <div class="matrix-description">
+                            <p><strong>Axe X :</strong> Rang moyen (Popularité élevée à droite) &nbsp;|&nbsp;
+                                <strong>Axe Y :</strong> Stabilité (Stable en bas)
+                            </p>
+                        </div>
+                    </div>
+
+                    <div id="loading" class="hidden">Chargement des données...</div>
+                    <div id="error" class="hidden"></div>
+                </section>
+            </main>
+        </div>
+
         <footer>
-            <p>Data provided by <a href="https://tranco-list.eu" target="_blank">Tranco List</a></p>
+            <p>Données fournies par <a href="https://tranco-list.eu" target="_blank">Tranco List</a></p>
         </footer>
     </div>
-    <script src="script.js"></script>
+    <script src="dataHandler.js"></script>
+    <script src="script.js">
+    </script>
 </body>
+
 </html>

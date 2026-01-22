@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Domain Data - Tranco Rank Comparer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="dataHandler.js"></script>
+    <style>
+        .upload-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .upload-box {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 2px dashed var(--border-color);
+            text-align: center;
+            transition: all 0.3s;
+            margin-bottom: 2rem;
+        }
+
+        .upload-box.dragover {
+            border-color: var(--accent-color);
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+
+        .upload-box input[type="file"] {
+            display: none;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, var(--accent-color), #3b82f6);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .upload-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .domains-list {
+            background-color: var(--card-bg);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .domain-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        .domain-item:last-child {
+            border-bottom: none;
+        }
+
+        .domain-item:hover {
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+
+        .domain-name {
+            font-weight: 600;
+            color: var(--accent-color);
+            font-size: 1.1rem;
+        }
+
+        .domain-meta {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .message.success {
+            background-color: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: #34d399;
+        }
+
+        .message.error {
+            background-color: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            color: #f87171;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>📤 Upload Domain Data</h1>
+            <p>Upload CSV files containing rank history for domains.</p>
+        </header>
+
+        <main class="upload-container">
+            <div id="message" class="message"></div>
+
+            <div class="upload-box" id="uploadBox">
+                <input type="file" id="fileInput" accept=".csv" />
+                <h2>📁 Drop CSV file here or click to browse</h2>
+                <p style="color: var(--text-secondary); margin: 1rem 0;">
+                    CSV format: <code style="background: rgba(56, 189, 248, 0.1); padding: 0.2rem 0.5rem; border-radius: 0.25rem;">date,rank</code>
+                </p>
+                <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                    Example: <code style="background: rgba(56, 189, 248, 0.1); padding: 0.2rem 0.5rem; border-radius: 0.25rem;">2022-03,10</code>
+                </p>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    Choose File
+                </button>
+                <div class="file-info" id="fileInfo"></div>
+            </div>
+
+            <div class="domains-list">
+                <h2 style="color: var(--text-primary); margin-bottom: 1.5rem;">Available Domains</h2>
+                <div id="domainsList">
+                    <p style="color: var(--text-secondary); text-align: center;">Loading...</p>
+                </div>
+            </div>
+
+            <div class="nav-links">
+                <a href="/">← Back to Rank Comparer</a>
+            </div>
+        </main>
+
+        <footer>
+            <p>Data visualization tool for <a href="https://tranco-list.eu" target="_blank">Tranco List</a></p>
+        </footer>
+    </div>
+
+    <script>
+        const uploadBox = document.getElementById('uploadBox');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const messageEl = document.getElementById('message');
+        const domainsListEl = document.getElementById('domainsList');
+
+        // Drag and drop handlers
+        uploadBox.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadBox.classList.add('dragover');
+        });
+
+        uploadBox.addEventListener('dragleave', () => {
+            uploadBox.classList.remove('dragover');
+        });
+
+        uploadBox.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadBox.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function showMessage(text, type) {
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+
+        async function handleFile(file) {
+            if (!file.name.endsWith('.csv')) {
+                showMessage('Please upload a CSV file', 'error');
+                return;
+            }
+
+            fileInfo.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+
+            try {
+                // Extract domain name from filename (remove .csv)
+                const domain = file.name.replace('.csv', '');
+                
+                // Upload using client-side handler
+                const result = await dataHandler.uploadCSV(file, domain);
+
+                if (result.success) {
+                    showMessage(`✓ Successfully uploaded data for ${result.domain} (${result.count} records)`, 'success');
+                    fileInfo.textContent = '';
+                    fileInput.value = '';
+                    loadDomains(); // Refresh the list
+                } else {
+                    showMessage(`✗ Upload failed`, 'error');
+                }
+            } catch (error) {
+                showMessage(`✗ Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function loadDomains() {
+            try {
+                const domains = dataHandler.getAvailableDomains();
+
+                if (domains.length > 0) {
+                    domainsListEl.innerHTML = domains.map(d => `
+                        <div class="domain-item">
+                            <div>
+                                <div class="domain-name">${d.domain}</div>
+                                <div class="domain-meta">
+                                    ${d.filename} • ${(d.size / 1024).toFixed(2)} KB • 
+                                    ${d.count} records • 
+                                    Uploaded: ${new Date(d.uploadDate).toLocaleDateString()}
+                                </div>
+                            </div>
+                            <button onclick="deleteDomain('${d.domain}')" style="background: rgba(248, 113, 113, 0.2); border: 1px solid #f87171; color: #f87171; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer;">
+                                Delete
+                            </button>
+                        </div>
+                    `).join('');
+                } else {
+                    domainsListEl.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No domains uploaded yet. Upload a CSV file to get started!</p>';
+                }
+            } catch (error) {
+                domainsListEl.innerHTML = '<p style="color: #f87171; text-align: center;">Error loading domains</p>';
+            }
+        }
+
+        function deleteDomain(domain) {
+            if (confirm(`Are you sure you want to delete data for ${domain}?`)) {
+                dataHandler.deleteDomain(domain);
+                showMessage(`✓ Deleted ${domain}`, 'success');
+                loadDomains();
+            }
+        }
+
+        // Load domains on page load
+        loadDomains();
+    </script>
+</body>
+
+</html>
