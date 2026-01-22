@@ -144,10 +144,12 @@
                 <input type="file" id="fileInput" accept=".csv" />
                 <h2>📁 Drop CSV file here or click to browse</h2>
                 <p style="color: var(--text-secondary); margin: 1rem 0;">
-                    CSV format: <code style="background: rgba(56, 189, 248, 0.1); padding: 0.2rem 0.5rem; border-radius: 0.25rem;">date,rank</code>
+                    CSV format: <code
+                        style="background: rgba(56, 189, 248, 0.1); padding: 0.2rem 0.5rem; border-radius: 0.25rem;">date,rank</code>
                 </p>
                 <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                    Example: <code style="background: rgba(56, 189, 248, 0.1); padding: 0.2rem 0.5rem; border-radius: 0.25rem;">2022-03,10</code>
+                    Example: <code
+                        style="background: rgba(56, 189, 248, 0.1); padding: 0.2rem 0.5rem; border-radius: 0.25rem;">2022-03,10</code>
                 </p>
                 <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
                     Choose File
@@ -163,7 +165,7 @@
             </div>
 
             <div class="nav-links">
-                <a href="/">← Back to Rank Comparer</a>
+                <a href="./index.html">← Back to Rank Comparer</a>
             </div>
         </main>
 
@@ -192,7 +194,7 @@
         uploadBox.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadBox.classList.remove('dragover');
-            
+
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 handleFile(files[0]);
@@ -209,7 +211,7 @@
             messageEl.textContent = text;
             messageEl.className = `message ${type}`;
             messageEl.style.display = 'block';
-            
+
             setTimeout(() => {
                 messageEl.style.display = 'none';
             }, 5000);
@@ -226,7 +228,7 @@
             try {
                 // Extract domain name from filename (remove .csv)
                 const domain = file.name.replace('.csv', '');
-                
+
                 // Upload using client-side handler
                 const result = await dataHandler.uploadCSV(file, domain);
 

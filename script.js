@@ -259,6 +259,14 @@ function removeDomain(index) {
 addDomainBtn.addEventListener('click', addDomain);
 domainInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addDomain(); });
 
+// Update chart when date range changes
+startDateInput.addEventListener('change', () => {
+    if (domains.length > 0) handleCompare();
+});
+endDateInput.addEventListener('change', () => {
+    if (domains.length > 0) handleCompare();
+});
+
 // --- View Switching ---
 
 const tabs = document.querySelectorAll('.tab-btn');
